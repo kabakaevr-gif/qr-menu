@@ -1,28 +1,30 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pari Steamhouse Menu</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pari Steamhouse Menu</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <header>
-        <div class="brand">Pari Steamhouse</div>
-        <div class="language-selector">
-            <!-- Language buttons use data attributes to indicate which language they correspond to -->
-            <button data-lang="ru" class="active">RU</button>
-            <button data-lang="en">EN</button>
-            <button data-lang="kz">KZ</button>
-        </div>
-    </header>
-    <div class="section-selector">
-        <button data-section="kitchen" class="active">Kitchen</button>
-        <button data-section="bar">Bar</button>
+  <header class="site-header">
+    <h1 class="site-title">Pari Steamhouse</h1>
+    <div id="language-switcher" class="language-switcher">
+      <button type="button" data-lang="ru" class="active">RU</button>
+      <button type="button" data-lang="en">EN</button>
+      <button type="button" data-lang="kz">KZ</button>
     </div>
-    <main id="menu-content">
-        <!-- Menu content will be injected here by script.js -->
-    </main>
-    <script src="script.js"></script>
+  </header>
+
+  <nav id="category-nav" class="category-nav">
+    <!-- Categories will be populated here -->
+  </nav>
+
+  <main id="menu-container" class="menu-container">
+    <!-- Menu sections will be inserted here -->
+  </main>
+
+  <script src="script.js"></script>
 </body>
 </html>

@@ -1,543 +1,763 @@
 /*
- * script.js
- *
- * This file contains the menu definition and the logic for rendering it into
- * the page.  The menu is defined for two sections (kitchen and bar), each
- * supporting three languages: Russian (ru), English (en) and Kazakh (kz).
- *
- * Changing the selected language or section updates the displayed content
- * without reloading the page.  If translations are not provided for a given
- * language, the Russian text is used as a fallback.
+ * This script builds the menu interface dynamically based on the data
+ * defined below. It supports switching between Russian (ru), English (en)
+ * and Kazakh (kz). If a translation for a particular language is not
+ * provided, the Russian text will be displayed by default.
  */
 
-// Menu data structured by section then language.  Each language holds
-// an array of categories; each category has a name and a list of items.  An
-// item contains a name, an optional description and a price.  Prices are
-// stored as strings to preserve formatting.
-const menu = {
-  kitchen: {
-    ru: [
+// Dataset for all menu categories and items. Each string is provided in
+// Russian and English. For Kazakh we reuse the Russian text so that the
+// client can update translations later.
+const menuData = [
+  {
+    id: 'salads',
+    name: { ru: 'Салаты', en: 'Salads', kz: 'Салаттар' },
+    items: [
       {
-        name: 'Салаты',
-        items: [
-          { name: 'Теплый салат с телятиной', description: 'телятина, овощи', price: '5 500' },
-          { name: 'Хрустящие баклажаны', description: 'баклажан, сыр фета, томаты, кедровые орешки', price: '4 900' },
-          { name: 'Цезарь с цыпленком', description: 'хрустящий салат, курица, соус цезарь', price: '4 800' },
-          { name: 'Греческий', description: 'томаты, огурцы, маслины, сыр', price: '4 200' }
-        ]
+        name: {
+          ru: 'Тёплый салат с телятиной',
+          en: 'Warm veal salad',
+          kz: 'Тёплый салат с телятиной',
+        },
+        description: {
+          ru: 'телятина, овощи',
+          en: 'veal, vegetables',
+          kz: 'телятина, овощи',
+        },
+        price: 5500,
       },
       {
-        name: 'Горячие блюда',
-        items: [
-          { name: 'Стейк из семги', description: 'нежная семга на гриле с микс салатом', price: '7 200' },
-          { name: 'Дорадо на гриле', description: 'запеченная дорадо с лимоном и микс салатом', price: '7 800' },
-          { name: 'Котлета по‑домашнему с пюре', description: 'сочная котлета с картофельным пюре', price: '4 600' },
-          { name: 'Бургер', description: 'классический бургер с говядиной/курицей и картофелем фри', price: '5 500' },
-          { name: 'Куриный стейк', description: 'куриный стейк с картофелем', price: '5 800' },
-          { name: 'Манты с говядиной', description: 'нежные манты с сочной говядиной и сметаной', price: '4 800' },
-          { name: 'Стейк Рибай', description: 'мраморная говядина с картофельными дольками', price: '12 000' },
-          { name: 'Куырдак', description: 'жаркое из мяса', price: '5 200' }
-        ]
+        name: {
+          ru: 'Хрустящие баклажаны',
+          en: 'Crispy eggplants',
+          kz: 'Хрустящие баклажаны',
+        },
+        description: {
+          ru: 'баклажан, сыр фета, томаты, кедровые орешки',
+          en: 'eggplant, feta cheese, tomatoes, pine nuts',
+          kz: 'баклажан, сыр фета, томаты, кедровые орешки',
+        },
+        price: 4900,
       },
       {
-        name: 'Шашлыки',
-        items: [
-          { name: 'Баранина', price: '6 900' },
-          { name: 'Антрекот из баранины', price: '7 200' },
-          { name: 'Куриный', price: '5 500' },
-          { name: 'Люля кебаб', price: '5 800' }
-        ]
+        name: {
+          ru: 'Цезарь с цыплёнком',
+          en: 'Caesar with chicken',
+          kz: 'Цезарь с цыплёнком',
+        },
+        description: {
+          ru: 'хрустящий салат, курица, соус цезарь',
+          en: 'crispy salad, chicken, Caesar dressing',
+          kz: 'хрустящий салат, курица, соус цезарь',
+        },
+        price: 4800,
       },
       {
-        name: 'Супы',
-        items: [
-          { name: 'Рамен', description: 'японский суп‑лапша с курицей/говядиной', price: '4 800' },
-          { name: 'Том‑ям с морепродуктами', description: 'острый суп с креветками', price: '6 800' },
-          { name: 'Суп лапша куриный', description: 'домашний куриный суп с лапшой', price: '3 500' },
-          { name: 'Шорпа по‑казахски', description: 'бульон из баранины', price: '4 800' },
-          { name: 'Солянка', description: 'мясной суп с оливками и лимоном', price: '3 600' },
-          { name: 'Пельмени', description: 'пельмени в насыщенном говяжьем бульоне со сметаной', price: '3 600' }
-        ]
+        name: {
+          ru: 'Греческий',
+          en: 'Greek',
+          kz: 'Греческий',
+        },
+        description: {
+          ru: 'томаты, огурцы, маслины, сыр',
+          en: 'tomatoes, cucumbers, olives, cheese',
+          kz: 'томаты, огурцы, маслины, сыр',
+        },
+        price: 4200,
       },
-      {
-        name: 'Пицца',
-        items: [
-          { name: 'Пицца Маргарита', description: 'классическая пицца с томатами и моцареллой', price: '3 500' },
-          { name: 'Пицца Пеперони', description: 'колбаса, томатный соус, сыр', price: '4 800' },
-          { name: 'Пицца с цыпленком', description: 'пицца с курицей и сыром', price: '4 900' }
-        ]
-      },
-      {
-        name: 'Горячие закуски',
-        items: [
-          { name: 'Кесадилья с курицей', description: 'хрустящая пшеничная тортилья с сочной куриной грудкой', price: '4 500' },
-          { name: 'Чебуреки', price: '4 000' },
-          { name: 'Крылышки BBQ', price: '4 800' },
-          { name: 'Наггетсы', price: '3 500' },
-          { name: 'Самса ассорти', description: 'говядина/индейка', price: '4 000' },
-          { name: 'Брускетты', description: 'семга и свежие овощи / томаты и яйцо пашот', price: '4 200' },
-          { name: 'Мозговые косточки', price: '3 000' }
-        ]
-      },
-      {
-        name: 'Холодные закуски',
-        items: [
-          { name: 'Овощная тарелка', price: '4 900' },
-          { name: 'Тарелка солений', description: 'ассорти из хрустящих огурцов, свежие томаты, квашеная капуста', price: '4 900' }
-        ]
-      },
-      {
-        name: 'Закуски к пиву',
-        items: [
-          { name: 'Бараньи семечки', description: 'жареные кусочки баранины с солью', price: '4 300' },
-          { name: 'Жареные карасики', description: 'хрустящая маринованная рыба', price: '4 000' },
-          { name: 'Пивные креветки', price: '5 000' },
-          { name: 'Пивной сет 1', description: 'жареный чечил, фисташки, чипсы, гренки, сырные палочки', price: '12 200' },
-          { name: 'Пивной сет 2', description: 'луковые кольца, пивные креветки, крылья BBQ, бараньи семечки', price: '15 800' }
-        ]
-      },
-      {
-        name: 'Блюда на компанию',
-        items: [
-          { name: 'Ассорти шашлыков', description: 'баранина, курица, говядина, люля кебаб', price: '35 000' },
-          { name: 'Мясной микс', description: 'ассорти из мяса гриль', price: '45 000' },
-          { name: 'Плов Чайханский', description: 'узбекский плов с рассыпчатым рисом (по предзаказу)', price: '35 000' },
-          { name: 'Куырдак на компанию', description: 'нежное мясо с картофелем и луком (по предзаказу)', price: '45 000' }
-        ]
-      },
-      {
-        name: 'Гарниры',
-        items: [
-          { name: 'Рис', price: '1 200' },
-          { name: 'Фри', price: '1 200' },
-          { name: 'Картофельные дольки', price: '1 500' }
-        ]
-      },
-      {
-        name: 'Десерты',
-        items: [
-          { name: 'Яблочный штрудель', description: 'теплый штрудель с корицей', price: '4 800' },
-          { name: 'Бельгийские вафли', description: 'вафли с мороженым и сиропом', price: '4 200' }
-        ]
-      },
-      {
-        name: 'Дополнительно',
-        items: [
-          { name: 'Дополнительный соус на выбор', description: 'сыноч, кетчуп, тар‑тар, сацебели, горчица, шашлычный', price: '500' },
-          { name: 'Хлебная корзина', price: '2 500' }
-        ]
-      }
     ],
-    en: [
-      {
-        name: 'Salads',
-        items: [
-          { name: 'Warm salad with veal', description: 'veal, vegetables', price: '5 500' },
-          { name: 'Crispy eggplant', description: 'eggplant, feta cheese, tomatoes, pine nuts', price: '4 900' },
-          { name: 'Caesar with chicken', description: 'crisp salad, chicken, Caesar sauce', price: '4 800' },
-          { name: 'Greek salad', description: 'tomatoes, cucumbers, olives, cheese', price: '4 200' }
-        ]
-      },
-      {
-        name: 'Hot dishes',
-        items: [
-          { name: 'Salmon steak', description: 'tender grilled salmon with mixed salad', price: '7 200' },
-          { name: 'Grilled dorado', description: 'baked dorado with lemon and mixed salad', price: '7 800' },
-          { name: 'Homestyle cutlet with puree', description: 'juicy cutlet with mashed potatoes', price: '4 600' },
-          { name: 'Burger', description: 'classic burger with beef/chicken and fries', price: '5 500' },
-          { name: 'Chicken steak', description: 'chicken steak with potatoes', price: '5 800' },
-          { name: 'Manty with beef', description: 'tender manty with juicy beef and sour cream', price: '4 800' },
-          { name: 'Ribeye steak', description: 'marbled beef with potato wedges', price: '12 000' },
-          { name: 'Kuyrdak', description: 'braised meat', price: '5 200' }
-        ]
-      },
-      {
-        name: 'Shashlik',
-        items: [
-          { name: 'Lamb', price: '6 900' },
-          { name: 'Lamb entrecote', price: '7 200' },
-          { name: 'Chicken', price: '5 500' },
-          { name: 'Lyulya kebab', price: '5 800' }
-        ]
-      },
-      {
-        name: 'Soups',
-        items: [
-          { name: 'Ramen', description: 'Japanese noodle soup with chicken/beef', price: '4 800' },
-          { name: 'Tom yum with seafood', description: 'spicy soup with shrimp', price: '6 800' },
-          { name: 'Chicken noodle soup', description: 'homemade chicken soup with noodles', price: '3 500' },
-          { name: 'Kazakh shorpa', description: 'broth with lamb', price: '4 800' },
-          { name: 'Solyanka', description: 'meat soup with olives and lemon', price: '3 600' },
-          { name: 'Pelmeni', description: 'dumplings in rich beef broth with sour cream', price: '3 600' }
-        ]
-      },
-      {
-        name: 'Pizza',
-        items: [
-          { name: 'Margherita pizza', description: 'classic pizza with tomatoes and mozzarella', price: '3 500' },
-          { name: 'Pepperoni pizza', description: 'sausage, tomato sauce, cheese', price: '4 800' },
-          { name: 'Chicken pizza', description: 'pizza with chicken and cheese', price: '4 900' }
-        ]
-      },
-      {
-        name: 'Hot snacks',
-        items: [
-          { name: 'Chicken quesadilla', description: 'crispy wheat tortilla with juicy chicken breast', price: '4 500' },
-          { name: 'Chebureki', price: '4 000' },
-          { name: 'BBQ wings', price: '4 800' },
-          { name: 'Nuggets', price: '3 500' },
-          { name: 'Assorted samsa', description: 'beef/turkey', price: '4 000' },
-          { name: 'Bruschettas', description: 'salmon and fresh vegetables / tomatoes and poached egg', price: '4 200' },
-          { name: 'Marrow bones', price: '3 000' }
-        ]
-      },
-      {
-        name: 'Cold snacks',
-        items: [
-          { name: 'Vegetable plate', price: '4 900' },
-          { name: 'Pickles plate', description: 'assortment of crispy cucumbers, fresh tomatoes, sauerkraut', price: '4 900' }
-        ]
-      },
-      {
-        name: 'Beer snacks',
-        items: [
-          { name: 'Fried lamb pieces', description: 'roasted lamb pieces with salt', price: '4 300' },
-          { name: 'Fried crucian fish', description: 'crispy marinated fish', price: '4 000' },
-          { name: 'Beer shrimp', price: '5 000' },
-          { name: 'Beer set 1', description: 'fried chechil, pistachios, chips, croutons, cheese sticks', price: '12 200' },
-          { name: 'Beer set 2', description: 'onion rings, beer shrimp, BBQ wings, lamb pieces', price: '15 800' }
-        ]
-      },
-      {
-        name: 'For company',
-        items: [
-          { name: 'Assorted shashliks', description: 'lamb, chicken, beef, lyulya kebab', price: '35 000' },
-          { name: 'Meat mix', description: 'assorted grilled meat', price: '45 000' },
-          { name: 'Chaykhansky pilaf', description: 'Uzbek pilaf with fluffy rice (pre‑order)', price: '35 000' },
-          { name: 'Kuyrdak for company', description: 'tender meat with potatoes and onion (pre‑order)', price: '45 000' }
-        ]
-      },
-      {
-        name: 'Side dishes',
-        items: [
-          { name: 'Rice', price: '1 200' },
-          { name: 'Fries', price: '1 200' },
-          { name: 'Potato wedges', price: '1 500' }
-        ]
-      },
-      {
-        name: 'Desserts',
-        items: [
-          { name: 'Apple strudel', description: 'warm strudel with cinnamon', price: '4 800' },
-          { name: 'Belgian waffles', description: 'waffles with ice cream and syrup', price: '4 200' }
-        ]
-      },
-      {
-        name: 'Extras',
-        items: [
-          { name: 'Additional sauce', description: 'chechil, ketchup, tartar, adjika, mustard, BBQ', price: '500' },
-          { name: 'Bread basket', price: '2 500' }
-        ]
-      }
-    ],
-    // For Kazakh we currently mirror the Russian text; translations can be added later.
-    kz: []
   },
-  bar: {
-    ru: [
+  {
+    id: 'hot-dishes',
+    name: { ru: 'Горячие блюда', en: 'Hot dishes', kz: 'Ыстық тағамдар' },
+    items: [
       {
-        name: 'Лимонады',
-        items: [
-          { name: 'Цитрус', price: '4 500' },
-          { name: 'Киви‑лайм', price: '4 500' },
-          { name: 'Манго‑Маракуя', price: '4 500' },
-          { name: 'Арбуз‑Дыня', price: '4 500' },
-          { name: 'Клубника‑Малина', price: '4 500' },
-          { name: 'Морс', price: '3 000' }
-        ]
+        name: { ru: 'Стейк из семги', en: 'Salmon steak', kz: 'Стейк из семги' },
+        description: {
+          ru: 'нежная семга на гриле с микс салатом',
+          en: 'tender grilled salmon with mixed salad',
+          kz: 'нежная семга на гриле с микс салатом',
+        },
+        price: 7200,
       },
       {
-        name: 'Авторские чаи',
-        items: [
-          { name: 'Ташкентский чай', description: 'ароматный черный/зеленый чай, специи, фрукты', price: '3 500' },
-          { name: 'Марокканский чай', description: 'зеленый чай, мята', price: '3 500' },
-          { name: 'Ягодный чай', description: 'ароматный чай с лесными ягодами и фруктами', price: '3 500' },
-          { name: 'Облепиха‑Апельсин', description: 'согревающий чай с облепихой и апельсином', price: '3 500' }
-        ]
+        name: { ru: 'Дорадо на гриле', en: 'Grilled dorado', kz: 'Дорадо на гриле' },
+        description: {
+          ru: 'запечённая дорадо с лимоном и микс салатом',
+          en: 'baked dorado with lemon and mixed salad',
+          kz: 'запечённая дорадо с лимоном и микс салатом',
+        },
+        price: 7800,
       },
       {
-        name: 'Листовые чаи',
-        items: [
-          { name: 'Молочный Улун', description: 'чай с мягким сливочным вкусом и карамельными нотами', price: '3 000' },
-          { name: 'Английский завтрак', description: 'крепкий черный чай', price: '3 000' },
-          { name: 'Зеленая сенча', description: 'японский чай с травяным вкусом', price: '3 000' }
-        ]
+        name: {
+          ru: 'Котлета по‑домашнему с пюре',
+          en: 'Homemade cutlet with puree',
+          kz: 'Котлета по‑домашнему с пюре',
+        },
+        description: {
+          ru: 'сочная котлета с картофельным пюре',
+          en: 'juicy cutlet with mashed potatoes',
+          kz: 'сочная котлета с картофельным пюре',
+        },
+        price: 4600,
       },
       {
-        name: 'Напитки',
-        items: [
-          { name: 'Coca‑cola', price: '1 500' },
-          { name: 'Sprite', price: '1 500' },
-          { name: 'Fanta', price: '1 500' },
-          { name: 'Rich', price: '1 500' },
-          { name: 'Tassay', price: '1 500' },
-          { name: 'Red Bull', price: '2 800' },
-          { name: 'San Pellegrino газ.', price: '3 000' },
-          { name: 'San Pellegrino лим.', price: '2 800' }
-        ]
+        name: { ru: 'Бургер', en: 'Burger', kz: 'Бургер' },
+        description: {
+          ru: 'классический бургер с говядиной/курицей и картофелем фри',
+          en: 'classic burger with beef/chicken and fries',
+          kz: 'классический бургер с говядиной/курицей и картофелем фри',
+        },
+        price: 5500,
       },
       {
-        name: 'Пиво',
-        items: [
-          { name: 'London Pride', price: '3 800' },
-          { name: 'Guinness Stout', price: '3 800' },
-          { name: 'Paulaner Weissbier 0.0 %', price: '3 900' },
-          { name: 'Paulaner Weissbier', price: '3 900' },
-          { name: 'Corona Extra', price: '3 500' }
-        ]
+        name: { ru: 'Куриный стейк', en: 'Chicken steak', kz: 'Куриный стейк' },
+        description: {
+          ru: 'картофель с говядиной',
+          en: 'potatoes with beef',
+          kz: 'картофель с говядиной',
+        },
+        price: 5800,
       },
       {
-        name: 'Виски',
-        items: [
-          { name: 'Jameson Original', price: '3 500' },
-          { name: 'Monkey Shoulder', price: '5 500' },
-          { name: 'Macallan 12', price: '7 500' },
-          { name: "The Glenlivet Founder's Reserve", price: '4 500' },
-          { name: 'Chivas Regal 12', price: '4 500' },
-          { name: 'The Balvenie 12 Doublewood', price: '8 500' }
-        ]
+        name: { ru: 'Манты с говядиной', en: 'Manty with beef', kz: 'Манты с говядиной' },
+        description: {
+          ru: 'нежные манты с сочной говядиной и со сметаной',
+          en: 'tender dumplings with juicy beef and sour cream',
+          kz: 'нежные манты с сочной говядиной и со сметаной',
+        },
+        price: 4800,
       },
       {
-        name: 'Водка',
-        items: [
-          { name: 'Qazaq Eli Nomad', price: '1 500' },
-          { name: 'Grey Goose', price: '2 900' },
-          { name: 'Belvedere', price: '4 200' }
-        ]
+        name: { ru: 'Стейк Рибай', en: 'Ribeye steak', kz: 'Стейк Рибай' },
+        description: {
+          ru: 'мраморная говядина с картофельными дольками',
+          en: 'marbled beef with potato wedges',
+          kz: 'мраморная говядина с картофельными дольками',
+        },
+        price: 12000,
       },
       {
-        name: 'Снэки',
-        items: [
-          { name: 'Чипсы', price: '1 200' },
-          { name: 'Фисташка', price: '1 200' },
-          { name: 'Чечил', price: '1 200' }
-        ]
+        name: { ru: 'Куырдак', en: 'Kuyrdak', kz: 'Қуырдақ' },
+        description: {
+          ru: 'жаркое из мяса',
+          en: 'meat stew',
+          kz: 'жаркое из мяса',
+        },
+        price: 5200,
       },
-      {
-        name: 'Коньяк',
-        items: [
-          { name: 'Courvoisier VS', price: '4 000' },
-          { name: 'Hennessy VS', price: '4 500' },
-          { name: 'Hennessy VSOP', price: '7 500' }
-        ]
-      },
-      {
-        name: 'Вино',
-        items: [
-          { name: 'Santa Cristina Casasole', description: 'полусладкое белое 12 %', price: '25 000' },
-          { name: 'Villa Antinori Bianco Toscana IG', description: 'сухое белое 12 %', price: '25 000' },
-          { name: 'Villa Antinori Bianco Toscana IGT', description: 'сухое красное 12 %', price: '45 000' },
-          { name: 'Ruggeri Prosecco', price: '45 000' },
-          { name: 'Martini Brut', price: '25 000' },
-          { name: 'Asti Martini Rose', price: '25 000' }
-        ]
-      },
-      {
-        name: 'Кальян',
-        items: [
-          { name: 'Кальян Light', price: '12 000' },
-          { name: 'Кальян Medium', price: '15 000' },
-          { name: 'Кальян Hard', price: '18 000' }
-        ]
-      }
     ],
-    en: [
-      {
-        name: 'Lemonades',
-        items: [
-          { name: 'Citrus', price: '4 500' },
-          { name: 'Kiwi‑lime', price: '4 500' },
-          { name: 'Mango‑Passion fruit', price: '4 500' },
-          { name: 'Watermelon‑Melon', price: '4 500' },
-          { name: 'Strawberry‑Raspberry', price: '4 500' },
-          { name: 'Mors (fruit drink)', price: '3 000' }
-        ]
-      },
-      {
-        name: "Author's teas",
-        items: [
-          { name: 'Tashkent tea', description: 'aromatic black/green tea, spices, fruits', price: '3 500' },
-          { name: 'Moroccan tea', description: 'green tea, mint', price: '3 500' },
-          { name: 'Berry tea', description: 'aromatic tea with forest berries and fruits', price: '3 500' },
-          { name: 'Sea buckthorn‑Orange', description: 'warming tea with sea buckthorn and orange', price: '3 500' }
-        ]
-      },
-      {
-        name: 'Leaf teas',
-        items: [
-          { name: 'Milk oolong', description: 'tea with soft creamy taste and caramel notes', price: '3 000' },
-          { name: 'English breakfast', description: 'strong black tea', price: '3 000' },
-          { name: 'Green sencha', description: 'Japanese tea with herbal taste', price: '3 000' }
-        ]
-      },
-      {
-        name: 'Soft drinks',
-        items: [
-          { name: 'Coca‑cola', price: '1 500' },
-          { name: 'Sprite', price: '1 500' },
-          { name: 'Fanta', price: '1 500' },
-          { name: 'Rich', price: '1 500' },
-          { name: 'Tassay', price: '1 500' },
-          { name: 'Red Bull', price: '2 800' },
-          { name: 'San Pellegrino sparkling', price: '3 000' },
-          { name: 'San Pellegrino lemon', price: '2 800' }
-        ]
-      },
-      {
-        name: 'Beer',
-        items: [
-          { name: 'London Pride', price: '3 800' },
-          { name: 'Guinness Stout', price: '3 800' },
-          { name: 'Paulaner Weissbier 0.0 %', price: '3 900' },
-          { name: 'Paulaner Weissbier', price: '3 900' },
-          { name: 'Corona Extra', price: '3 500' }
-        ]
-      },
-      {
-        name: 'Whiskey',
-        items: [
-          { name: 'Jameson Original', price: '3 500' },
-          { name: 'Monkey Shoulder', price: '5 500' },
-          { name: 'Macallan 12', price: '7 500' },
-          { name: "The Glenlivet Founder's Reserve", price: '4 500' },
-          { name: 'Chivas Regal 12', price: '4 500' },
-          { name: 'The Balvenie 12 Doublewood', price: '8 500' }
-        ]
-      },
-      {
-        name: 'Vodka',
-        items: [
-          { name: 'Qazaq Eli Nomad', price: '1 500' },
-          { name: 'Grey Goose', price: '2 900' },
-          { name: 'Belvedere', price: '4 200' }
-        ]
-      },
-      {
-        name: 'Snacks',
-        items: [
-          { name: 'Chips', price: '1 200' },
-          { name: 'Pistachio', price: '1 200' },
-          { name: 'Chechil', price: '1 200' }
-        ]
-      },
-      {
-        name: 'Cognac',
-        items: [
-          { name: 'Courvoisier VS', price: '4 000' },
-          { name: 'Hennessy VS', price: '4 500' },
-          { name: 'Hennessy VSOP', price: '7 500' }
-        ]
-      },
-      {
-        name: 'Wine',
-        items: [
-          { name: 'Santa Cristina Casasole', description: 'semi‑sweet white 12 %', price: '25 000' },
-          { name: 'Villa Antinori Bianco Toscana IG', description: 'dry white 12 %', price: '25 000' },
-          { name: 'Villa Antinori Bianco Toscana IGT', description: 'dry red 12 %', price: '45 000' },
-          { name: 'Ruggeri Prosecco', price: '45 000' },
-          { name: 'Martini Brut', price: '25 000' },
-          { name: 'Asti Martini Rose', price: '25 000' }
-        ]
-      },
-      {
-        name: 'Hookah',
-        items: [
-          { name: 'Hookah Light', price: '12 000' },
-          { name: 'Hookah Medium', price: '15 000' },
-          { name: 'Hookah Hard', price: '18 000' }
-        ]
-      }
+  },
+  {
+    id: 'shashlyk',
+    name: { ru: 'Шашлыки', en: 'Shashlik', kz: 'Шашлық' },
+    items: [
+      { name: { ru: 'Баранина', en: 'Lamb', kz: 'Қой еті' }, description: { ru: '', en: '', kz: '' }, price: 6900 },
+      { name: { ru: 'Антрекот из баранины', en: 'Lamb entrecote', kz: 'Қойдың антрекоты' }, description: { ru: '', en: '', kz: '' }, price: 7200 },
+      { name: { ru: 'Куриный', en: 'Chicken', kz: 'Тауық' }, description: { ru: '', en: '', kz: '' }, price: 5500 },
+      { name: { ru: 'Люля кебаб', en: 'Lyulya kebab', kz: 'Люля кебаб' }, description: { ru: '', en: '', kz: '' }, price: 5800 },
     ],
-    // Mirror Russian for Kazakh for now
-    kz: []
-  }
-};
+  },
+  {
+    id: 'sauces',
+    name: { ru: 'Дополнительно', en: 'Extras', kz: 'Қосымша' },
+    items: [
+      {
+        name: {
+          ru: 'Дополнительный соус на выбор',
+          en: 'Extra sauce of your choice',
+          kz: 'Қосымша тұздық',
+        },
+        description: {
+          ru: 'сырный, кетчуп, тар-тар, сацебели, горчичный, шашлычный',
+          en: 'cheese, ketchup, tartar, satsabeli, mustard, shashlik sauces',
+          kz: 'сырный, кетчуп, тар-тар, сацебели, горчичный, шашлычный',
+        },
+        price: 500,
+      },
+      {
+        name: { ru: 'Хлебная корзина', en: 'Bread basket', kz: 'Нан себеті' },
+        description: { ru: '', en: '', kz: '' },
+        price: 2500,
+      },
+    ],
+  },
+  {
+    id: 'soups',
+    name: { ru: 'Супы', en: 'Soups', kz: 'Сорпалар' },
+    items: [
+      {
+        name: { ru: 'Рамен', en: 'Ramen', kz: 'Рамен' },
+        description: {
+          ru: 'японский суп‑лапша с курицей/говядиной',
+          en: 'Japanese noodle soup with chicken/beef',
+          kz: 'жапон кеспе сорпасы, тауық/сиыр еті',
+        },
+        price: 4800,
+      },
+      {
+        name: { ru: 'Том-ям с морепродуктами', en: 'Tom Yum with seafood', kz: 'Том-ям теңіз тағамдарымен' },
+        description: {
+          ru: 'острый суп с креветками',
+          en: 'spicy soup with prawns',
+          kz: 'аскүй креветкалары бар ащы сорпа',
+        },
+        price: 6800,
+      },
+      {
+        name: { ru: 'Суп лапша куриный', en: 'Chicken noodle soup', kz: 'Тауық кеспе сорпасы' },
+        description: {
+          ru: 'домашний куриный суп с лапшой',
+          en: 'homestyle chicken soup with noodles',
+          kz: 'үй тауық сорпасы кеспемен',
+        },
+        price: 3500,
+      },
+      {
+        name: { ru: 'Шорпа по‑казахски', en: 'Kazakh shorpa', kz: 'Қазақша шорпа' },
+        description: {
+          ru: 'бульон из баранины',
+          en: 'mutton broth',
+          kz: 'қой етінің сорпасы',
+        },
+        price: 4800,
+      },
+      {
+        name: { ru: 'Солянка', en: 'Solyanka', kz: 'Солянка' },
+        description: {
+          ru: 'мясной суп с оливками и лимоном',
+          en: 'meat soup with olives and lemon',
+          kz: 'ет сорпасы, зәйтүн және лимонмен',
+        },
+        price: 3600,
+      },
+      {
+        name: { ru: 'Пельмени', en: 'Pelmeni', kz: 'Пельмени' },
+        description: {
+          ru: 'пельмени в насыщенном говяжьем бульоне со сметаной',
+          en: 'dumplings in rich beef broth with sour cream',
+          kz: 'қанық сиыр сорпасында пельмени, қаймақпен',
+        },
+        price: 3600,
+      },
+    ],
+  },
+  {
+    id: 'pizza',
+    name: { ru: 'Пицца', en: 'Pizza', kz: 'Пицца' },
+    items: [
+      {
+        name: { ru: 'Пицца Маргарита', en: 'Pizza Margherita', kz: 'Пицца Маргарита' },
+        description: {
+          ru: 'классическая пицца с томатами и моцареллой',
+          en: 'classic pizza with tomatoes and mozzarella',
+          kz: 'томат пен моцарелла қосылған классикалық пицца',
+        },
+        price: 3500,
+      },
+      {
+        name: { ru: 'Пицца Пеперони', en: 'Pizza Pepperoni', kz: 'Пицца Пеперони' },
+        description: {
+          ru: 'колбаса, томатный соус, сыр',
+          en: 'sausage, tomato sauce, cheese',
+          kz: 'шұжық, томат тұздығы, сыр',
+        },
+        price: 4800,
+      },
+      {
+        name: { ru: 'Пицца с цыплёнком', en: 'Pizza with chicken', kz: 'Тауық еті қосылған пицца' },
+        description: {
+          ru: 'пицца с курицей и сыром',
+          en: 'pizza with chicken and cheese',
+          kz: 'тауық пен сыр қосылған пицца',
+        },
+        price: 4900,
+      },
+    ],
+  },
+  {
+    id: 'hot-appetizers',
+    name: { ru: 'Горячие закуски', en: 'Hot appetizers', kz: 'Ыстық тіскебасарлар' },
+    items: [
+      {
+        name: { ru: 'Кесадилья с курицей', en: 'Chicken quesadilla', kz: 'Тауық қосылған кесадилья' },
+        description: {
+          ru: 'хрустящая пшеничная тортилья с сочной куриной грудкой',
+          en: 'crisp wheat tortilla with juicy chicken breast',
+          kz: 'шытырлақ бидай тортильясы және шырынды тауық еті',
+        },
+        price: 4500,
+      },
+      {
+        name: { ru: 'Чебуреки', en: 'Chebureki', kz: 'Чебуреки' },
+        description: { ru: '', en: '', kz: '' },
+        price: 4000,
+      },
+      {
+        name: { ru: 'Крылышки BBQ', en: 'BBQ wings', kz: 'BBQ қанаттары' },
+        description: { ru: '', en: '', kz: '' },
+        price: 4800,
+      },
+      {
+        name: { ru: 'Нагетсы', en: 'Nuggets', kz: 'Нагетстер' },
+        description: { ru: '', en: '', kz: '' },
+        price: 3500,
+      },
+      {
+        name: { ru: 'Самса ассорти', en: 'Samsa assortment', kz: 'Самса ассорти' },
+        description: {
+          ru: 'говядина/индейка',
+          en: 'beef/turkey',
+          kz: 'сиыр еті/үрей еті',
+        },
+        price: 4000,
+      },
+      {
+        name: { ru: 'Брускетты', en: 'Bruschetta', kz: 'Брускетти' },
+        description: {
+          ru: 'семга и свежие овощи/томаты и яйцо пашот',
+          en: 'salmon and fresh vegetables/tomatoes and poached egg',
+          kz: 'албырт және жаңа көкөністер/томат және пашот жұмыртқасы',
+        },
+        price: 4200,
+      },
+      {
+        name: { ru: 'Мозговые косточки', en: 'Marrow bones', kz: 'Ми сүйектері' },
+        description: { ru: '', en: '', kz: '' },
+        price: 3000,
+      },
+    ],
+  },
+  {
+    id: 'cold-appetizers',
+    name: { ru: 'Холодные закуски', en: 'Cold appetizers', kz: 'Суық тіскебасарлар' },
+    items: [
+      {
+        name: { ru: 'Овощная тарелка', en: 'Vegetable platter', kz: 'Көкөніс табақшасы' },
+        description: { ru: '', en: '', kz: '' },
+        price: 4900,
+      },
+      {
+        name: { ru: 'Тарелка солений', en: 'Pickles platter', kz: 'Маринадталған көкөністер' },
+        description: {
+          ru: 'ассорти из хрустящих огурцов, свеклы томлёной, квашеной капусты',
+          en: 'assortment of crunchy cucumbers, stewed beet, and sauerkraut',
+          kz: 'қытырлақ қияр, бұқтырылған қызылша, қырыққабат ассорти',
+        },
+        price: 4900,
+      },
+    ],
+  },
+  {
+    id: 'beer-snacks',
+    name: { ru: 'Закуски к пиву', en: 'Beer snacks', kz: 'Сыраға арналған тіскебасарлар' },
+    items: [
+      {
+        name: { ru: 'Бараньи семечки', en: 'Lamb seeds', kz: 'Қой тұқымдары' },
+        description: {
+          ru: 'жареные кусочки баранины с солью',
+          en: 'fried pieces of lamb with salt',
+          kz: 'тұзбен қуырылған қой еті',
+        },
+        price: 4300,
+      },
+      {
+        name: { ru: 'Жареные карасики', en: 'Fried crucians', kz: 'Қуыырылған қарасу балықтары' },
+        description: {
+          ru: 'хрустящая маринованная рыба',
+          en: 'crispy marinated fish',
+          kz: 'дәмді маринадталған балық',
+        },
+        price: 4000,
+      },
+      {
+        name: { ru: 'Пивные креветки', en: 'Beer shrimp', kz: 'Сыралы асшаяндар' },
+        description: { ru: '', en: '', kz: '' },
+        price: 5000,
+      },
+      {
+        name: { ru: 'Пивной сет 1', en: 'Beer set 1', kz: 'Сыралық жинақ 1' },
+        description: {
+          ru: 'жареный чечил, фисташки, чипсы, гренки, сырные палочки',
+          en: 'fried chechil, pistachios, chips, croutons, cheese sticks',
+          kz: 'қуыырылған чечил, фисташка, чипсы, крекер, сыр таяқшалары',
+        },
+        price: 12200,
+      },
+      {
+        name: { ru: 'Пивной сет 2', en: 'Beer set 2', kz: 'Сыралық жинақ 2' },
+        description: {
+          ru: 'луковые кольца, пивные креветки, крылья BBQ, бараньи семечки',
+          en: 'onion rings, beer shrimp, BBQ wings, lamb seeds',
+          kz: 'пияз сақиналары, сыралы асшаяндар, BBQ қанаттары, қой тұқымдары',
+        },
+        price: 15800,
+      },
+    ],
+  },
+  {
+    id: 'company-dishes',
+    name: { ru: 'Блюда на компанию', en: 'Dishes for company', kz: 'Компанияға арналған тағамдар' },
+    items: [
+      {
+        name: { ru: 'Ассорти шашлыков', en: 'Assorted shashlik', kz: 'Шашлық ассорти' },
+        description: {
+          ru: 'баранина, курица, говядина, люля кебаб',
+          en: 'lamb, chicken, beef, lyulya kebab',
+          kz: 'қой еті, тауық, сиыр еті, люля кебаб',
+        },
+        price: 35000,
+      },
+      {
+        name: { ru: 'Мясной микс', en: 'Meat mix', kz: 'Ет миксі' },
+        description: {
+          ru: 'ассорти из мяса гриль',
+          en: 'assorted grilled meats',
+          kz: 'гриль ет ассорти',
+        },
+        price: 45000,
+      },
+      {
+        name: { ru: 'Плов Чайханский', en: 'Chaykhana pilaf', kz: 'Чайхана палауы' },
+        description: {
+          ru: 'узбекский плов с рассыпчатым рисом (по предзаказу)',
+          en: 'Uzbek pilaf with fluffy rice (pre-order)',
+          kz: 'өзбек палауы, ұнтақталған күрішпен (алдын-ала тапсырыс)',
+        },
+        price: 35000,
+      },
+      {
+        name: { ru: 'Куырдак (на компанию)', en: 'Kuyrdak (for company)', kz: 'Қуырдақ (компанияға)' },
+        description: {
+          ru: 'нежное мясо с картофелем и луком (по предзаказу)',
+          en: 'tender meat with potatoes and onions (pre-order)',
+          kz: 'картоп пен пияз қосылған жұмсақ ет (алдын-ала тапсырыс)',
+        },
+        price: 45000,
+      },
+    ],
+  },
+  {
+    id: 'side-dishes',
+    name: { ru: 'Гарниры', en: 'Side dishes', kz: 'Гарнирлер' },
+    items: [
+      { name: { ru: 'Рис', en: 'Rice', kz: 'Күріш' }, description: { ru: '', en: '', kz: '' }, price: 1200 },
+      { name: { ru: 'Фри', en: 'Fries', kz: 'Фри' }, description: { ru: '', en: '', kz: '' }, price: 1200 },
+      { name: { ru: 'Картофельные дольки', en: 'Potato wedges', kz: 'Картоп тілімдері' }, description: { ru: '', en: '', kz: '' }, price: 1500 },
+    ],
+  },
+  {
+    id: 'desserts',
+    name: { ru: 'Десерты', en: 'Desserts', kz: 'Десерттер' },
+    items: [
+      {
+        name: { ru: 'Яблочный штрудель', en: 'Apple strudel', kz: 'Алма штруделі' },
+        description: {
+          ru: 'тёплый штрудель с корицей',
+          en: 'warm strudel with cinnamon',
+          kz: 'даршын қосылған жылы штрудель',
+        },
+        price: 4800,
+      },
+      {
+        name: { ru: 'Бельгийские вафли', en: 'Belgian waffles', kz: 'Бельгиялық вафли' },
+        description: {
+          ru: 'вафли с мороженым и сиропом',
+          en: 'waffles with ice cream and syrup',
+          kz: 'балмұздақ және шәрбатпен вафли',
+        },
+        price: 4200,
+      },
+    ],
+  },
+  {
+    id: 'lemonades',
+    name: { ru: 'Лимонады', en: 'Lemonades', kz: 'Лимонадтар' },
+    items: [
+      { name: { ru: 'Цитрус', en: 'Citrus', kz: 'Цитрус' }, description: { ru: '', en: '', kz: '' }, price: 4500 },
+      { name: { ru: 'Киви‑лайм', en: 'Kiwi‑lime', kz: 'Киви‑лайм' }, description: { ru: '', en: '', kz: '' }, price: 4500 },
+      { name: { ru: 'Манго‑Маракуя', en: 'Mango‑Passionfruit', kz: 'Манго‑Маракуя' }, description: { ru: '', en: '', kz: '' }, price: 4500 },
+      { name: { ru: 'Арбуз‑Дыня', en: 'Watermelon‑Melon', kz: 'Қарбыз‑Қауын' }, description: { ru: '', en: '', kz: '' }, price: 4500 },
+      { name: { ru: 'Клубника‑Малина', en: 'Strawberry‑Raspberry', kz: 'Құлпынай‑Тағола' }, description: { ru: '', en: '', kz: '' }, price: 4500 },
+      { name: { ru: 'Морс', en: 'Berry drink', kz: 'Морс' }, description: { ru: '', en: '', kz: '' }, price: 3000 },
+    ],
+  },
+  {
+    id: 'signature-tea',
+    name: { ru: 'Авторские чаи', en: 'Signature teas', kz: 'Авторлық шайлар' },
+    items: [
+      {
+        name: { ru: 'Ташкентский чай', en: 'Tashkent tea', kz: 'Ташкент шайы' },
+        description: {
+          ru: 'ароматный чёрный/зелёный чай, специи, фрукты',
+          en: 'aromatic black/green tea with spices and fruits',
+          kz: 'хош иісті қара/жасыл шай, дәмдеуіштер, жемістер',
+        },
+        price: 3500,
+      },
+      {
+        name: { ru: 'Марокканский чай', en: 'Moroccan tea', kz: 'Марокко шайы' },
+        description: {
+          ru: 'зелёный чай, мята',
+          en: 'green tea, mint',
+          kz: 'жасыл шай, жалбыз',
+        },
+        price: 3500,
+      },
+      {
+        name: { ru: 'Ягодный чай', en: 'Berry tea', kz: 'Жидек шайы' },
+        description: {
+          ru: 'ароматный чай с лесными ягодами и фруктами',
+          en: 'aromatic tea with forest berries and fruits',
+          kz: 'орман жидектері мен жемістер қосылған хош иісті шай',
+        },
+        price: 3500,
+      },
+      {
+        name: { ru: 'Облепиха‑Апельсин', en: 'Sea buckthorn‑Orange', kz: 'Қызыл мүкжидек‑Апельсин' },
+        description: {
+          ru: 'согревающий чай с облепихой и апельсином',
+          en: 'warming tea with sea buckthorn and orange',
+          kz: 'шиповник пен апельсин қосылған жылы шай',
+        },
+        price: 3500,
+      },
+    ],
+  },
+  {
+    id: 'loose-tea',
+    name: { ru: 'Листовые чаи', en: 'Loose teas', kz: 'Жапырақты шайлар' },
+    items: [
+      {
+        name: { ru: 'Молочный Улун', en: 'Milk Oolong', kz: 'Сүтті улун' },
+        description: {
+          ru: 'чай с мягким сливочным вкусом и карамельными нотами',
+          en: 'tea with soft creamy taste and caramel notes',
+          kz: 'жұмсақ кілегей дәмі және карамель ноталары бар шай',
+        },
+        price: 3000,
+      },
+      {
+        name: { ru: 'Английский завтрак', en: 'English breakfast', kz: 'Ағылшын таңғы шайы' },
+        description: {
+          ru: 'крепкий чёрный чай',
+          en: 'strong black tea',
+          kz: 'қою қара шай',
+        },
+        price: 3000,
+      },
+      {
+        name: { ru: 'Зелёная сенча', en: 'Green Sencha', kz: 'Жасыл сенча' },
+        description: {
+          ru: 'японский чай с травяным вкусом',
+          en: 'Japanese tea with herbal flavour',
+          kz: 'шөпті дәмі бар жапон шайы',
+        },
+        price: 3000,
+      },
+    ],
+  },
+  {
+    id: 'soft-drinks',
+    name: { ru: 'Напитки', en: 'Soft drinks', kz: 'Сусындар' },
+    items: [
+      { name: { ru: 'Coca‑cola', en: 'Coca‑cola', kz: 'Coca‑cola' }, description: { ru: '', en: '', kz: '' }, price: 1500 },
+      { name: { ru: 'Sprite', en: 'Sprite', kz: 'Sprite' }, description: { ru: '', en: '', kz: '' }, price: 1500 },
+      { name: { ru: 'Fanta', en: 'Fanta', kz: 'Fanta' }, description: { ru: '', en: '', kz: '' }, price: 1500 },
+      { name: { ru: 'Rich', en: 'Rich', kz: 'Rich' }, description: { ru: '', en: '', kz: '' }, price: 1500 },
+      { name: { ru: 'Tassay', en: 'Tassay', kz: 'Tassay' }, description: { ru: '', en: '', kz: '' }, price: 1500 },
+      { name: { ru: 'Red Bull', en: 'Red Bull', kz: 'Red Bull' }, description: { ru: '', en: '', kz: '' }, price: 2800 },
+      { name: { ru: 'San Pellegrino газ.', en: 'San Pellegrino (sparkling)', kz: 'San Pellegrino (газ.)' }, description: { ru: '', en: '', kz: '' }, price: 3000 },
+      { name: { ru: 'San Pellegrino лим.', en: 'San Pellegrino (lemon)', kz: 'San Pellegrino (лимон)' }, description: { ru: '', en: '', kz: '' }, price: 2800 },
+    ],
+  },
+  {
+    id: 'beer',
+    name: { ru: 'Пиво', en: 'Beer', kz: 'Сыра' },
+    items: [
+      { name: { ru: 'London Pride', en: 'London Pride', kz: 'London Pride' }, description: { ru: '', en: '', kz: '' }, price: 3800 },
+      { name: { ru: 'Guinness Stout', en: 'Guinness Stout', kz: 'Guinness Stout' }, description: { ru: '', en: '', kz: '' }, price: 3800 },
+      { name: { ru: 'Paulaner Weissbier 0.0 %', en: 'Paulaner Weissbier 0.0 %', kz: 'Paulaner Weissbier 0.0 %' }, description: { ru: '', en: '', kz: '' }, price: 3900 },
+      { name: { ru: 'Paulaner Weissbier', en: 'Paulaner Weissbier', kz: 'Paulaner Weissbier' }, description: { ru: '', en: '', kz: '' }, price: 3900 },
+      { name: { ru: 'Corona Extra', en: 'Corona Extra', kz: 'Corona Extra' }, description: { ru: '', en: '', kz: '' }, price: 3500 },
+    ],
+  },
+  {
+    id: 'whiskey',
+    name: { ru: 'Виски', en: 'Whisky', kz: 'Виски' },
+    items: [
+      { name: { ru: 'Jameson Original', en: 'Jameson Original', kz: 'Jameson Original' }, description: { ru: '', en: '', kz: '' }, price: 3500 },
+      { name: { ru: 'Monkey Shoulder', en: 'Monkey Shoulder', kz: 'Monkey Shoulder' }, description: { ru: '', en: '', kz: '' }, price: 5500 },
+      { name: { ru: 'Macallan 12', en: 'Macallan 12', kz: 'Macallan 12' }, description: { ru: '', en: '', kz: '' }, price: 7500 },
+      { name: { ru: "The Glenlivet Founder's Reserve", en: "The Glenlivet Founder's Reserve", kz: "The Glenlivet Founder's Reserve" }, description: { ru: '', en: '', kz: '' }, price: 4500 },
+      { name: { ru: 'Chivas Regal 12', en: 'Chivas Regal 12', kz: 'Chivas Regal 12' }, description: { ru: '', en: '', kz: '' }, price: 4500 },
+      { name: { ru: 'The Balvenie 12 Doublewood', en: 'The Balvenie 12 Doublewood', kz: 'The Balvenie 12 Doublewood' }, description: { ru: '', en: '', kz: '' }, price: 8500 },
+    ],
+  },
+  {
+    id: 'vodka',
+    name: { ru: 'Водка', en: 'Vodka', kz: 'Арақ' },
+    items: [
+      { name: { ru: 'Qazaq Eli Nomad', en: 'Qazaq Eli Nomad', kz: 'Qazaq Eli Nomad' }, description: { ru: '', en: '', kz: '' }, price: 1500 },
+      { name: { ru: 'Grey Goose', en: 'Grey Goose', kz: 'Grey Goose' }, description: { ru: '', en: '', kz: '' }, price: 2900 },
+      { name: { ru: 'Belvedere', en: 'Belvedere', kz: 'Belvedere' }, description: { ru: '', en: '', kz: '' }, price: 4200 },
+    ],
+  },
+  {
+    id: 'snacks',
+    name: { ru: 'Снеки', en: 'Snacks', kz: 'Тіскебасарлар' },
+    items: [
+      { name: { ru: 'Чипсы', en: 'Chips', kz: 'Чипсы' }, description: { ru: '', en: '', kz: '' }, price: 1200 },
+      { name: { ru: 'Фисташка', en: 'Pistachio', kz: 'Фисташка' }, description: { ru: '', en: '', kz: '' }, price: 1200 },
+      { name: { ru: 'Чечил', en: 'Chechil', kz: 'Чечил' }, description: { ru: '', en: '', kz: '' }, price: 1200 },
+    ],
+  },
+  {
+    id: 'cognac',
+    name: { ru: 'Коньяк', en: 'Cognac', kz: 'Коньяк' },
+    items: [
+      { name: { ru: 'Courvoisier VS', en: 'Courvoisier VS', kz: 'Courvoisier VS' }, description: { ru: '', en: '', kz: '' }, price: 4000 },
+      { name: { ru: 'Hennessy VS', en: 'Hennessy VS', kz: 'Hennessy VS' }, description: { ru: '', en: '', kz: '' }, price: 4500 },
+      { name: { ru: 'Hennessy VSOP', en: 'Hennessy VSOP', kz: 'Hennessy VSOP' }, description: { ru: '', en: '', kz: '' }, price: 7500 },
+    ],
+  },
+  {
+    id: 'wine',
+    name: { ru: 'Вино', en: 'Wine', kz: 'Шарап' },
+    items: [
+      {
+        name: { ru: 'Santa Cristina Casasole', en: 'Santa Cristina Casasole', kz: 'Santa Cristina Casasole' },
+        description: {
+          ru: 'полусладкое белое 12%',
+          en: 'semi‑sweet white 12%',
+          kz: 'жартылай тәтті ақ 12%',
+        },
+        price: 25000,
+      },
+      {
+        name: { ru: 'Villa Antinori Bianco Toscana IG', en: 'Villa Antinori Bianco Toscana IG', kz: 'Villa Antinori Bianco Toscana IG' },
+        description: {
+          ru: 'сухое белое 12%',
+          en: 'dry white 12%',
+          kz: 'құрғақ ақ 12%',
+        },
+        price: 25000,
+      },
+      {
+        name: { ru: 'Villa Antinori Bianco Toscana IGT', en: 'Villa Antinori Bianco Toscana IGT', kz: 'Villa Antinori Bianco Toscana IGT' },
+        description: {
+          ru: 'сухое красное 12%',
+          en: 'dry red 12%',
+          kz: 'құрғақ қызыл 12%',
+        },
+        price: 45000,
+      },
+      {
+        name: { ru: 'Ruggeri Prosecco', en: 'Ruggeri Prosecco', kz: 'Ruggeri Prosecco' }, description: { ru: '', en: '', kz: '' }, price: 45000 },
+      {
+        name: { ru: 'Martini Brut', en: 'Martini Brut', kz: 'Martini Brut' }, description: { ru: '', en: '', kz: '' }, price: 25000 },
+      {
+        name: { ru: 'Asti Martini Rose', en: 'Asti Martini Rose', kz: 'Asti Martini Rose' }, description: { ru: '', en: '', kz: '' }, price: 25000 },
+    ],
+  },
+  {
+    id: 'hookah',
+    name: { ru: 'Кальян', en: 'Hookah', kz: 'Кальян' },
+    items: [
+      { name: { ru: 'Кальян Light', en: 'Hookah Light', kz: 'Кальян Light' }, description: { ru: '', en: '', kz: '' }, price: 12000 },
+      { name: { ru: 'Кальян Medium', en: 'Hookah Medium', kz: 'Кальян Medium' }, description: { ru: '', en: '', kz: '' }, price: 15000 },
+      { name: { ru: 'Кальян Hard', en: 'Hookah Hard', kz: 'Кальян Hard' }, description: { ru: '', en: '', kz: '' }, price: 18000 },
+    ],
+  },
+];
 
-// Fallback: copy Russian data into Kazakh where translations are missing
-['kitchen', 'bar'].forEach(section => {
-  ['kz'].forEach(lang => {
-    if (menu[section][lang].length === 0) {
-      // Deep copy the Russian array
-      menu[section][lang] = menu[section]['ru'].map(category => ({
-        name: category.name,
-        items: category.items.map(item => ({...item}))
-      }));
-    }
-  });
-});
+// Current language state
+let currentLang = 'ru';
 
-// Default state
-let currentSection = 'kitchen';
-let currentLanguage = 'ru';
-
-// Elements
-const mainEl = document.getElementById('menu-content');
-const languageButtons = document.querySelectorAll('.language-selector button');
-const sectionButtons = document.querySelectorAll('.section-selector button');
-
+/**
+ * Render the category navigation and menu sections based on current language.
+ */
 function renderMenu() {
-  // Clear previous content
-  mainEl.innerHTML = '';
-  const categories = menu[currentSection][currentLanguage];
-  categories.forEach(category => {
-    const catDiv = document.createElement('div');
-    catDiv.classList.add('category');
-    const h2 = document.createElement('h2');
-    h2.textContent = category.name;
-    catDiv.appendChild(h2);
-    category.items.forEach(item => {
+  const nav = document.getElementById('category-nav');
+  const container = document.getElementById('menu-container');
+  // Clear existing content
+  nav.innerHTML = '';
+  container.innerHTML = '';
+  // Build navigation links and sections
+  menuData.forEach((category) => {
+    const langName = category.name[currentLang] || category.name['ru'];
+    // Create nav link
+    const navLink = document.createElement('a');
+    navLink.href = `#${category.id}`;
+    navLink.textContent = langName;
+    nav.appendChild(navLink);
+    // Create section
+    const section = document.createElement('section');
+    section.className = 'menu-section';
+    section.id = category.id;
+    const heading = document.createElement('h2');
+    heading.textContent = langName;
+    section.appendChild(heading);
+    // Create items
+    category.items.forEach((item) => {
       const itemDiv = document.createElement('div');
-      itemDiv.classList.add('item');
-      const textDiv = document.createElement('div');
-      const nameEl = document.createElement('div');
-      nameEl.classList.add('item-name');
-      nameEl.textContent = item.name;
-      textDiv.appendChild(nameEl);
-      if (item.description) {
-        const descEl = document.createElement('div');
-        descEl.classList.add('item-description');
-        descEl.textContent = item.description;
-        textDiv.appendChild(descEl);
+      itemDiv.className = 'menu-item';
+      const infoDiv = document.createElement('div');
+      infoDiv.className = 'item-info';
+      const itemName = item.name[currentLang] || item.name['ru'];
+      const itemDesc = item.description[currentLang] || item.description['ru'];
+      const nameEl = document.createElement('h3');
+      nameEl.textContent = itemName;
+      infoDiv.appendChild(nameEl);
+      if (itemDesc) {
+        const descEl = document.createElement('p');
+        descEl.textContent = itemDesc;
+        infoDiv.appendChild(descEl);
       }
-      itemDiv.appendChild(textDiv);
       const priceEl = document.createElement('div');
-      priceEl.classList.add('item-price');
-      priceEl.textContent = item.price;
+      priceEl.className = 'item-price';
+      priceEl.textContent = formatPrice(item.price);
+      itemDiv.appendChild(infoDiv);
       itemDiv.appendChild(priceEl);
-      catDiv.appendChild(itemDiv);
+      section.appendChild(itemDiv);
     });
-    mainEl.appendChild(catDiv);
+    container.appendChild(section);
   });
 }
 
-// Event handlers
-languageButtons.forEach(button => {
-  button.addEventListener('click', () => {
-    currentLanguage = button.dataset.lang;
-    languageButtons.forEach(btn => btn.classList.remove('active'));
-    button.classList.add('active');
-    renderMenu();
-  });
-});
+/**
+ * Format price as string with spaces as thousands separator and the currency symbol.
+ * @param {number} price
+ * @returns {string}
+ */
+function formatPrice(price) {
+  if (typeof price !== 'number') return price;
+  // Convert to string with space separators
+  return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+}
 
-sectionButtons.forEach(button => {
-  button.addEventListener('click', () => {
-    currentSection = button.dataset.section;
-    sectionButtons.forEach(btn => btn.classList.remove('active'));
-    button.classList.add('active');
-    renderMenu();
-  });
-});
+/**
+ * Set the current language and update the menu.
+ * @param {string} lang
+ */
+function setLanguage(lang) {
+  currentLang = lang;
+  // Update active class on buttons
+  document
+    .querySelectorAll('#language-switcher button')
+    .forEach((btn) => btn.classList.toggle('active', btn.dataset.lang === lang));
+  renderMenu();
+}
 
-// Initial render
-renderMenu();
+// Initialize the page
+document.addEventListener('DOMContentLoaded', () => {
+  // Attach event listeners to language buttons
+  document
+    .querySelectorAll('#language-switcher button')
+    .forEach((btn) => {
+      btn.addEventListener('click', () => setLanguage(btn.dataset.lang));
+    });
+  // Render initial menu
+  renderMenu();
+});
