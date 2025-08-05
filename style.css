@@ -1,0 +1,128 @@
+/* Global styles for the QR menu website */
+
+/* Import a clean and legible font from Google Fonts.  Montserrat offers a modern look
+   similar to the type used in the provided menus.  Fallbacks ensure basic rendering
+   if the custom font cannot be loaded. */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap');
+
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Montserrat', sans-serif;
+    background-color: #e2e2e2; /* light grey background reminiscent of the original menu */
+    color: #000;
+    -webkit-font-smoothing: antialiased;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background-color: #e2e2e2;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+/* Brand styling */
+.brand {
+    font-size: 1.6rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+/* Language selector styling */
+.language-selector button {
+    margin-left: 10px;
+    padding: 5px 10px;
+    border: none;
+    background-color: transparent;
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.language-selector button.active {
+    text-decoration: underline;
+}
+
+.section-selector {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.section-selector button {
+    padding: 8px 15px;
+    border: 1px solid #000;
+    background-color: transparent;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.section-selector button.active,
+.section-selector button:hover {
+    background-color: #000;
+    color: #fff;
+}
+
+main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Category heading */
+.category {
+    margin-top: 40px;
+}
+
+.category h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
+
+/* Item card styling */
+.item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.item:last-child {
+    border-bottom: none;
+}
+
+.item-name {
+    font-weight: 500;
+}
+
+.item-description {
+    font-size: 0.85rem;
+    color: #555;
+    margin-top: 2px;
+}
+
+.item-price {
+    font-weight: 500;
+    margin-left: 20px;
+    white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+    .item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .item-price {
+        margin-left: 0;
+        margin-top: 5px;
+    }
+}
