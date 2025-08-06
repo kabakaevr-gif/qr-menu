@@ -1,0 +1,166 @@
+/* Import a modern sans‑serif font from Google Fonts.  The Montserrat family
+   provides clean letterforms appropriate for a digital menu. */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
+
+/* Base styles */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  /* Use Montserrat as the primary typeface throughout the menu.  The fallbacks
+     ensure text renders gracefully if the web font fails to load. */
+  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  background-color: #f5f5f5;
+  color: #222;
+}
+
+/* Site logo
+   Define dimensions and spacing for the logo placed in the header. */
+.site-logo {
+  width: 120px;
+  height: auto;
+  margin-right: 16px;
+}
+
+/* Header */
+.site-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background-color: #1a1a1a;
+  color: #ffffff;
+  flex-wrap: wrap;
+}
+
+.site-title {
+  margin: 0;
+  font-size: 1.6rem;
+  letter-spacing: 0.05em;
+}
+
+.language-switcher {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.language-switcher button {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 4px;
+  background-color: #333;
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s ease;
+}
+
+.language-switcher button:hover {
+  background-color: #555;
+}
+
+.language-switcher button.active {
+  background-color: #e58e26;
+}
+
+/* Category navigation */
+.category-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  padding: 10px 20px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e0e0e0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.category-nav a {
+  padding: 6px 12px;
+  text-decoration: none;
+  color: #333;
+  border-radius: 20px;
+  background-color: #f0f0f0;
+  transition: background-color 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.category-nav a:hover {
+  background-color: #e58e26;
+  color: #fff;
+}
+
+/* Menu sections */
+.menu-container {
+  padding: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.menu-section {
+  margin-bottom: 40px;
+}
+
+.menu-section h2 {
+  margin-bottom: 16px;
+  /* Increase the heading size and weight for better hierarchy */
+  font-size: 1.6rem;
+  font-weight: 600;
+  /* Use the brand turquoise colour for headings and underline to tie in with the logo */
+  border-bottom: 2px solid #00C7B1;
+  padding-bottom: 8px;
+  color: #00C7B1;
+}
+
+.menu-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 10px 0;
+  border-bottom: 1px solid #ececec;
+}
+
+.item-info {
+  max-width: 75%;
+}
+
+.item-info h3 {
+  margin: 0 0 4px 0;
+  /* Make dish names slightly larger and bolder than default text */
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.item-info p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.item-price {
+  font-weight: 600;
+  min-width: 80px;
+  text-align: right;
+}
+
+@media (max-width: 600px) {
+  .menu-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .item-price {
+    margin-top: 4px;
+    text-align: left;
+  }
+  .item-info {
+    max-width: 100%;
+  }
+}
