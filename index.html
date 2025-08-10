@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pari Steamhouse — Меню</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">
+      <img src="pari-logo.png" alt="Pari Steamhouse" class="brand-logo" />
+      <div class="brand-text">
+        <h1>Pari Steamhouse</h1>
+        <p>Цифровое меню</p>
+      </div>
+    </div>
+    <nav id="language-switcher" class="language-switcher" aria-label="Выбор языка">
+      <button data-lang="ru" class="active">RU</button>
+      <button data-lang="en">EN</button>
+      <button data-lang="kz">KZ</button>
+    </nav>
+  </header>
+
+  <nav id="category-nav" class="category-nav"></nav>
+
+  <div id="search-container" class="search-container">
+    <input type="text" id="search-input" placeholder="Поиск по меню…" aria-label="Поиск по меню" />
+  </div>
+
+  <main id="menu-container" class="menu-container"></main>
+
+  <!-- Modal for image + story -->
+  <div id="image-modal" class="image-modal">
+    <div class="image-modal-body">
+      <span class="image-modal-close" aria-label="Закрыть окно">&times;</span>
+      <img id="image-modal-img" class="image-modal-content" src="" alt="" />
+      <div id="image-modal-description" class="image-modal-description"></div>
+    </div>
+  </div>
+
+  <!-- Cart overlay -->
+  <div id="cart-overlay" class="cart-overlay hidden">
+    <div class="cart-container">
+      <button id="close-cart" class="close-cart" aria-label="Закрыть корзину">×</button>
+      <h2>Корзина</h2>
+      <ul id="cart-items"></ul>
+      <div class="cart-summary">Сумма: <span id="cart-total">0</span> ₸</div>
+      <div class="order-info">
+        <label for="steam-room">Steam Room:</label>
+        <select id="steam-room">
+          <option value="" disabled selected>Выберите парную</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+        </select>
+        <label for="order-comment" class="mt-8">Комментарий:</label>
+        <textarea id="order-comment" placeholder="Опционально"></textarea>
+      </div>
+      <div class="cart-actions">
+        <button id="clear-cart" class="btn danger">Очистить</button>
+        <button id="place-order" class="btn primary">Заказать</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="cart-toggle" class="cart-toggle hidden" role="button" tabindex="0">
+    Корзина: <span id="cart-count">0</span>
+  </div>
+
+  <footer class="site-footer">
+    <p>Телефон: <a href="tel:+77018000218">+7 701 800 0218</a></p>
+    <p>Адрес: мкрн. Акбулак, Саргуль 11</p>
+    <p class="muted">Нажмите на блюдо, чтобы открыть фото и описание, или добавьте в корзину для заказа.</p>
+  </footer>
+
+  <!-- Keep your existing imageData.js (base64) file in the repo -->
+  <script src="imageData.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
