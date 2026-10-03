@@ -1,0 +1,20 @@
+{
+  "name": "dota-ai-shorts-editor",
+  "version": "1.0.0",
+  "description": "Local AI-directed Dota 2 vertical shorts editor",
+  "main": "src/main.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test",
+    "check": "node --check src/main.js && node --check src/preload.js && node --check src/pipeline.js && node --check src/renderer.js && node --check src/ai/openai-provider.js && node --check ui/app.js"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "electron-store": "^8.2.0",
+    "ffmpeg-static": "^5.2.0",
+    "ffprobe-static": "^3.1.0",
+    "openai": "^6.0.0"
+  },
+  "devDependencies": { "electron": "^38.0.0" }
+}

@@ -1,0 +1,5 @@
+node_modules/
+npm-debug.log*
+dist/
+*.mp4
+!.github/**/*.mp4

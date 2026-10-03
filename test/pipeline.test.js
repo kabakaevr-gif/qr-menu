@@ -1,0 +1,7 @@
+const test=require('node:test'); const assert=require('node:assert/strict'); const {analyzePcm,validatePlan,chooseFrames}=require('../src/pipeline');
+const { emphasize } = require('../src/renderer');
+test('PCM analysis produces second buckets',()=>{const b=Buffer.alloc(16000*2*2);b.writeInt16LE(16384,0);const r=analyzePcm(b);assert.equal(r.length,2);assert.ok(r[0].peak>.4)});
+test('frame selection respects cap',()=>{const frames=Array.from({length:100},(_,i)=>({time:i,path:`${i}`}));const selected=chooseFrames(frames,frames.map(x=>({time:x.time,score:x.time})),20);assert.ok(selected.length<=20)});
+test('validates a safe edit plan',()=>{assert.doesNotThrow(()=>validatePlan({summary:'x',highlight_type:'other',confidence:.5,source_start:1,source_end:9,climax_start:4,climax_end:5,segments:[{start:1,end:9,role:'climax',action:'keep',speed:1,reason:'x'}],effects:[],subtitle_emphasis:[],ending_reason:'x',director_explanation:'x'},10))});
+test('rejects edit ranges outside the source',()=>{assert.throws(()=>validatePlan({summary:'x',highlight_type:'other',confidence:.5,source_start:1,source_end:11,climax_start:4,climax_end:5,segments:[{start:1,end:11,role:'climax',action:'keep',speed:1,reason:'x'}],effects:[],subtitle_emphasis:[],ending_reason:'x',director_explanation:'x'},10),/outside source/)});
+test('escapes captions and emphasizes only selected words',()=>{const result=emphasize('Nice {hook} clutch!', [{word:'clutch',reason:'payoff'}]);assert.ok(!result.includes('{hook}'));assert.match(result,/D8FF.*clutch/)});
